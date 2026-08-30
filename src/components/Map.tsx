@@ -44,9 +44,9 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
 
       leafletInstance.current = map;
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap &copy; CARTO',
-        subdomains: 'abcd',
+      // Pure OpenStreetMap Standard Tiles — Zero API keys required
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
       }).addTo(map);
 
@@ -54,13 +54,13 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
 
       // Plot All Hotspots
       hotspots.forEach((spot) => {
-        const color = spot.score > 90 ? '#ef4444' : spot.score > 80 ? '#f59e0b' : '#3b82f6';
+        const color = spot.score > 90 ? '#ef4444' : spot.score > 80 ? '#f59e0b' : '#2563eb';
         const customIcon = L.divIcon({
           className: 'custom-map-pin',
           html: `
             <div style="position: relative; display: flex; align-items: center; justify-content: center;">
               <div style="position: absolute; width: 22px; height: 22px; background-color: ${color}; opacity: 0.4; border-radius: 50%; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-              <div style="width: 14px; height: 14px; background-color: ${color}; border: 2px solid #0f172a; border-radius: 50%; box-shadow: 0 0 10px ${color};"></div>
+              <div style="width: 14px; height: 14px; background-color: ${color}; border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 0 10px ${color};"></div>
             </div>
           `,
           iconSize: [22, 22],
@@ -77,7 +77,7 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
         `);
       });
 
-      // Plot User GPS Pin
+      // Plot User GPS Marker
       if (userLocation) {
         const userIcon = L.divIcon({
           className: 'user-gps-pin',

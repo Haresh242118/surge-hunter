@@ -1,17 +1,16 @@
 ﻿'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { AlertTriangle, Navigation, RefreshCw, Crosshair } from 'lucide-react';
 
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
-  loading: () => <div className="h-[520px] flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading Map...</div> 
+  loading: () => <div className="h-[520px] flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading OpenStreetMap...</div> 
 });
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
 
-// Extended Singapore Hotspots
 const INITIAL_HOTSPOTS = [
   { zoneName: 'Changi Airport T3', reason: 'High incoming international arrivals', score: 94, lat: 1.3560, lng: 103.9870 },
   { zoneName: 'Marina Bay Sands', reason: 'Event & casino crowd dispersion', score: 88, lat: 1.2834, lng: 103.8607 },
@@ -23,7 +22,6 @@ const INITIAL_HOTSPOTS = [
   { zoneName: 'Clarke Quay', reason: 'Nightlife & dining pickup surge', score: 89, lat: 1.2906, lng: 103.8465 },
 ];
 
-// Haversine formula to calculate distance in km
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -41,15 +39,14 @@ export default function DashboardPage() {
   const [hotspots] = useState(INITIAL_HOTSPOTS);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [userSurgeScore, setUserSurgeScore] = useState<number | null>(null);
-  const [gpsStatus, setGpsStatus] = useState<string>('Check Local Surge');
+  const [gpsStatus, setGpsStatus] = useState<string>('Detecting Location...');
   const [loading, setLoading] = useState<boolean>(false);
 
   const togglePlatform = (p: string) => {
     setSelectedPlatforms(prev => prev.includes(p) ? prev.filter(item => item !== p) : [...prev, p]);
   };
 
-  // HTML5 Geolocation API trigger
-  const getUserLocation = () => {
+  const getUserLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setGpsStatus('GPS not supported');
       return;
@@ -60,7 +57,6 @@ export default function DashboardPage() {
         const { latitude, longitude } = position.coords;
         setUserLocation({ lat: latitude, lng: longitude });
 
-        // Calculate dynamic surge score based on proximity to nearest hotspot
         let minDistance = Infinity;
         let closestHotspot = hotspots[0];
 
@@ -72,16 +68,20 @@ export default function DashboardPage() {
           }
         });
 
-        // Surge estimation score based on distance to nearest surge cluster
         const localScore = minDistance < 1 ? closestHotspot.score : Math.max(50, closestHotspot.score - Math.floor(minDistance * 5));
         setUserSurgeScore(localScore);
         setGpsStatus(`Near ${closestHotspot.zoneName} (${minDistance} km)`);
       },
       () => {
-        setGpsStatus('Location denied');
+        setGpsStatus('Location access blocked');
       }
     );
-  };
+  }, [hotspots]);
+
+  // Auto-run location request on mount
+  useEffect(() => {
+    getUserLocation();
+  }, [getUserLocation]);
 
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans">
