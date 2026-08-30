@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users, Camera, Bell, BarChart3, CloudRain, Calculator, MapPin, Sparkles, Activity, Compass, Tag } from 'lucide-react';
+import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users, Camera, Bell, BarChart3, CloudRain, Calculator, MapPin, Sparkles, Activity, Compass, Tag, Car, Truck } from 'lucide-react';
 import AnalyticsModal from '../components/AnalyticsModal';
 import ProfitCalculatorModal from '../components/ProfitCalculatorModal';
 
@@ -25,17 +25,18 @@ interface Hotspot {
   lat: number;
   lng: number;
   baseFare: number;
+  avgDistanceKm: number;
 }
 
 const INITIAL_HOTSPOTS: Hotspot[] = [
-  { zoneName: 'Changi Airport T3', reason: 'High incoming international arrivals', score: 94, lat: 1.3560, lng: 103.9870, baseFare: 14 },
-  { zoneName: 'Marina Bay Sands', reason: 'Event & casino crowd dispersion', score: 88, lat: 1.2834, lng: 103.8607, baseFare: 11 },
-  { zoneName: 'Orchard Road', reason: 'Peak shopping & dining hours', score: 82, lat: 1.3048, lng: 103.8318, baseFare: 10 },
-  { zoneName: 'VivoCity & Sentosa Gateway', reason: 'Weekend island traffic bottleneck', score: 85, lat: 1.2644, lng: 103.8222, baseFare: 12 },
-  { zoneName: 'Jurong East Central', reason: 'Commuter interchange rush hour', score: 78, lat: 1.3329, lng: 103.7436, baseFare: 13 },
-  { zoneName: 'Woodlands Checkpoint', reason: 'Cross-border causeway congestion', score: 91, lat: 1.4423, lng: 103.7698, baseFare: 18 },
-  { zoneName: 'Suntec City & Convention Centre', reason: 'Exhibition & business peak exit', score: 80, lat: 1.2933, lng: 103.8572, baseFare: 10 },
-  { zoneName: 'Clarke Quay', reason: 'Nightlife & dining pickup surge', score: 89, lat: 1.2906, lng: 103.8465, baseFare: 11 },
+  { zoneName: 'Changi Airport T3', reason: 'High incoming international arrivals', score: 94, lat: 1.3560, lng: 103.9870, baseFare: 14, avgDistanceKm: 18 },
+  { zoneName: 'Marina Bay Sands', reason: 'Event & casino crowd dispersion', score: 88, lat: 1.2834, lng: 103.8607, baseFare: 11, avgDistanceKm: 12 },
+  { zoneName: 'Orchard Road', reason: 'Peak shopping & dining hours', score: 82, lat: 1.3048, lng: 103.8318, baseFare: 10, avgDistanceKm: 10 },
+  { zoneName: 'VivoCity & Sentosa Gateway', reason: 'Weekend island traffic bottleneck', score: 85, lat: 1.2644, lng: 103.8222, baseFare: 12, avgDistanceKm: 14 },
+  { zoneName: 'Jurong East Central', reason: 'Commuter interchange rush hour', score: 78, lat: 1.3329, lng: 103.7436, baseFare: 13, avgDistanceKm: 15 },
+  { zoneName: 'Woodlands Checkpoint', reason: 'Cross-border causeway congestion', score: 91, lat: 1.4423, lng: 103.7698, baseFare: 18, avgDistanceKm: 22 },
+  { zoneName: 'Suntec City & Convention Centre', reason: 'Exhibition & business peak exit', score: 80, lat: 1.2933, lng: 103.8572, baseFare: 10, avgDistanceKm: 11 },
+  { zoneName: 'Clarke Quay', reason: 'Nightlife & dining pickup surge', score: 89, lat: 1.2906, lng: 103.8465, baseFare: 11, avgDistanceKm: 9 },
 ];
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -390,6 +391,7 @@ export default function DashboardPage() {
             <span className="truncate max-w-[160px] font-mono">{gpsStatus}</span>
           </button>
 
+          {/* Platform Pills */}
           <div className="flex items-center gap-1.5 border-l border-slate-800/80 pl-3">
             {PLATFORMS.map((p) => (
               <button
@@ -461,7 +463,8 @@ export default function DashboardPage() {
             {hotspots.map((spot, idx) => {
               const activeMultipliers = selectedPlatforms.map(p => parseFloat(multipliers[p] || '1.0'));
               const highestMultiplier = activeMultipliers.length > 0 ? Math.max(...activeMultipliers) : 1.0;
-              const estimatedGross = (spot.baseFare * highestMultiplier * weather.surgeMultiplier).toFixed(1);
+              const estimatedGross4Seater = (spot.baseFare * highestMultiplier * weather.surgeMultiplier).toFixed(1);
+              const estimated6Seater = (spot.avgDistanceKm * 2.0 * weather.surgeMultiplier).toFixed(0);
               const isSelected = selectedHotspot.zoneName === spot.zoneName;
 
               return (
@@ -482,15 +485,27 @@ export default function DashboardPage() {
                       </h3>
                       <p className="text-[11px] text-slate-400 mt-0.5">{spot.reason}</p>
                       
-                      {/* Explicit Side-by-Side Fare Display */}
-                      <div className="flex items-center gap-2 mt-3 text-[11px] font-mono">
-                        <span className="flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-1 rounded-md font-bold">
+                      {/* Standard Gross & Base Fare Row */}
+                      <div className="flex items-center gap-2 mt-2.5 text-[10px] font-mono">
+                        <span className="flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded font-bold">
                           <DollarSign className="w-3 h-3 shrink-0" />
-                          <span>Gross: S${estimatedGross}</span>
+                          <span>Gross: S${estimatedGross4Seater}</span>
                         </span>
-                        <span className="flex items-center gap-1 bg-slate-800/80 border border-slate-700/80 text-slate-400 px-2 py-1 rounded-md">
+                        <span className="flex items-center gap-1 bg-slate-800/80 border border-slate-700/80 text-slate-400 px-2 py-0.5 rounded">
                           <Tag className="w-3 h-3 shrink-0 text-slate-500" />
                           <span>Base: S${spot.baseFare}</span>
+                        </span>
+                      </div>
+
+                      {/* Explicit 6-Seater & Minibus Rates Row */}
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] font-mono">
+                        <span className="flex items-center gap-1 bg-blue-950/50 border border-blue-800/50 text-blue-300 px-2 py-0.5 rounded">
+                          <Car className="w-3 h-3 text-blue-400 shrink-0" />
+                          <span>6-Seater: ~S${estimated6Seater} ($2/km)</span>
+                        </span>
+                        <span className="flex items-center gap-1 bg-amber-950/50 border border-amber-800/50 text-amber-300 px-2 py-0.5 rounded">
+                          <Truck className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span>Minibus: S$40-60/job</span>
                         </span>
                       </div>
                     </div>
