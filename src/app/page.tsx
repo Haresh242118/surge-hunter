@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign } from 'lucide-react';
+import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap } from 'lucide-react';
 
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
@@ -11,7 +11,6 @@ const SurgeMap = dynamic(() => import('../components/Map'), {
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
 
-// Adjusted realistic base fares for Singapore rides (off-peak/short distance baseline)
 const INITIAL_HOTSPOTS = [
   { zoneName: 'Changi Airport T3', reason: 'High incoming international arrivals', score: 94, lat: 1.3560, lng: 103.9870, baseFare: 14 },
   { zoneName: 'Marina Bay Sands', reason: 'Event & casino crowd dispersion', score: 88, lat: 1.2834, lng: 103.8607, baseFare: 11 },
@@ -100,14 +99,39 @@ export default function DashboardPage() {
     fetchSurgeData();
   }, [getUserLocation]);
 
+  // Filter highest demand hotspots for ticker marquee
+  const highDemandZones = hotspots.filter(h => h.score >= 85);
+
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans">
+      {/* Top Banner */}
       <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-4 py-2 text-xs font-semibold flex items-center justify-between">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" />
           <span>SURGE HUNTER LIVE — Monitoring Active Demand ({hotspots.length} Zones)</span>
         </div>
         <span className="bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">ACTIVE</span>
+      </div>
+
+      {/* Dynamic Live Ticker Bar */}
+      <div className="bg-[#0f172a] border-b border-slate-800 py-1.5 px-4 overflow-hidden flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-1.5 text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 whitespace-nowrap z-10">
+          <Zap className="w-3.5 h-3.5 fill-red-400 animate-bounce" />
+          <span>HIGH DEMAND ALERT</span>
+        </div>
+        
+        <div className="flex-1 overflow-hidden relative">
+          <div className="animate-marquee whitespace-nowrap flex gap-8 items-center text-slate-300">
+            {highDemandZones.concat(highDemandZones).map((spot, i) => (
+              <span key={i} className="flex items-center gap-2">
+                <span className="font-semibold text-white">{spot.zoneName}</span>
+                <span className="text-slate-400">({spot.reason})</span>
+                <span className="text-red-400 font-black">Score: {spot.score}/100</span>
+                <span className="text-slate-600">|</span>
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
 
       <header className="border-b border-slate-800 bg-[#151B2E] px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
