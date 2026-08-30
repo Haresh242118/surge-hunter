@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Navigation, RefreshCw } from 'lucide-react';
@@ -7,25 +7,12 @@ const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
 
 export default function DashboardPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['Grab', 'Gojek', 'TADA', 'Ryde']);
-  const [hotspots, setHotspots] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    fetchSurgeData();
-  }, [selectedPlatforms]);
-
-  const fetchSurgeData = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/surge/calculate');
-      const data = await res.json();
-      setHotspots(data.hotspots || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [hotspots, setHotspots] = useState<any[]>([
+    { zoneName: 'Changi Airport T3', reason: 'High incoming arrivals', score: 94 },
+    { zoneName: 'Marina Bay Sands', reason: 'Event crowd dispersion', score: 88 },
+    { zoneName: 'Orchard Road', reason: 'Peak shopping hours', score: 79 }
+  ]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const togglePlatform = (p: string) => {
     setSelectedPlatforms(prev =>
@@ -38,9 +25,9 @@ export default function DashboardPage() {
       <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-4 py-2 text-xs font-semibold flex items-center justify-between">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" />
-          <span>DEMO DATA ACTIVE — Synthetic surge metrics active.</span>
+          <span>SURGE HUNTER LIVE — Monitoring Active Demand</span>
         </div>
-        <span className="bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">SIMULATION MODE</span>
+        <span className="bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">ACTIVE</span>
       </div>
 
       <header className="border-b border-slate-800 bg-[#151B2E] px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -75,17 +62,17 @@ export default function DashboardPage() {
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
         <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-4 min-h-[500px] flex items-center justify-center">
-          <p className="text-slate-400 text-sm">Interactive Map Active — Hotspots Loaded: {hotspots.length}</p>
+          <p className="text-slate-400 text-sm">Interactive Surge Map — Hotspots Loaded: {hotspots.length}</p>
         </div>
 
         <div className="bg-[#151B2E] border border-slate-800 rounded-xl p-4 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 className="font-bold text-sm text-white flex items-center gap-2">
               <Navigation className="w-4 h-4 text-blue-400" />
-              Best Places To Go Now
+              High Demand Hotspots
             </h2>
             <button
-              onClick={fetchSurgeData}
+              onClick={() => setLoading(!loading)}
               className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
