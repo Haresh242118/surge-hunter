@@ -1,0 +1,7 @@
+﻿Set-Content -Path "public/robots.txt" -Value @'
+User-agent: *
+Allow: /
+
+User-agent: Mediapartners-Google
+Allow: /
+'@ -Encoding utf8
