@@ -1,0 +1,33 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090D18" />
+      <stop offset="100%" stop-color="#030712" />
+    </linearGradient>
+    <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#10b981" stroke-width="4" opacity="0.3" />
+  <circle cx="256" cy="256" r="100" fill="none" stroke="#10b981" stroke-width="6" opacity="0.5" />
+
+  <g filter="url(#glow)">
+    <line x1="256" y1="116" x2="256" y2="176" stroke="#10b981" stroke-width="10" stroke-linecap="round" />
+    <line x1="256" y1="336" x2="256" y2="396" stroke="#10b981" stroke-width="10" stroke-linecap="round" />
+    <line x1="116" y1="256" x2="176" y2="256" stroke="#10b981" stroke-width="10" stroke-linecap="round" />
+    <line x1="336" y1="256" x2="396" y2="256" stroke="#10b981" stroke-width="10" stroke-linecap="round" />
+
+    <polygon points="256,186 326,256 256,326 186,256" fill="url(#neonGrad)" />
+    <circle cx="256" cy="256" r="24" fill="#ffffff" />
+  </g>
+
+  <text x="256" y="440" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="42" fill="#ffffff" letter-spacing="4" text-anchor="middle">SURGE</text>
+</svg>
