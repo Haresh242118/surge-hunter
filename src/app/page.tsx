@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download } from 'lucide-react';
+import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users } from 'lucide-react';
 
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
@@ -44,13 +44,27 @@ export default function DashboardPage() {
   const [multipliers, setMultipliers] = useState<Record<string, string>>({ Grab: '1.2', Gojek: '1.1', TADA: '1.0', Ryde: '1.1' });
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [onlineUsers, setOnlineUsers] = useState<number>(14);
 
   useEffect(() => {
-    // Capture PWA install prompt event
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
     });
+
+    const fetchOnlineCount = async () => {
+      try {
+        const res = await fetch('/api/active-users');
+        const data = await res.json();
+        if (data.onlineUsers) setOnlineUsers(data.onlineUsers);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchOnlineCount();
+    const interval = setInterval(fetchOnlineCount, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleInstallClick = () => {
@@ -142,7 +156,12 @@ export default function DashboardPage() {
           <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">SURGE HUNTER LIVE — Monitoring Active Demand ({hotspots.length} Zones)</span>
         </div>
-        <span className="bg-amber-500/20 px-2 py-0.5 rounded text-[10px] shrink-0">ACTIVE</span>
+        
+        <div className="flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[10px] shrink-0 font-bold">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <Users className="w-3 h-3" />
+          <span>{onlineUsers} Online</span>
+        </div>
       </div>
 
       <div className="bg-[#0f172a] border-b border-slate-800 py-1.5 px-3 md:px-4 overflow-hidden flex items-center gap-2 md:gap-3 text-xs">
@@ -175,7 +194,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Install PWA Button */}
           <button
             onClick={handleInstallClick}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 transition-all"
