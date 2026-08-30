@@ -1,7 +1,7 @@
+Set-Content -Path "src/app/page.tsx" -Value @'
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import AdBanner from '@/components/AdBanner';
 import { AlertTriangle, Navigation, RefreshCw } from 'lucide-react';
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
@@ -36,16 +36,14 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans">
-      {/* Simulation Banner */}
       <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-4 py-2 text-xs font-semibold flex items-center justify-between">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" />
-          <span>DEMO DATA ACTIVE — Platform surge metrics are synthetic pending official API integration.</span>
+          <span>DEMO DATA ACTIVE — Synthetic surge metrics active.</span>
         </div>
         <span className="bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">SIMULATION MODE</span>
       </div>
 
-      {/* Header */}
       <header className="border-b border-slate-800 bg-[#151B2E] px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -55,7 +53,6 @@ export default function DashboardPage() {
           <p className="text-xs text-slate-400">Singapore Ride-Hailing Demand & Surge Monitor</p>
         </div>
 
-        {/* Platform Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-slate-400 font-medium mr-2">Platforms:</span>
           {PLATFORMS.map((p) => {
@@ -77,14 +74,11 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Dashboard Main Body */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
-        {/* Map Placeholder Container */}
         <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-4 min-h-[500px] flex items-center justify-center">
-          <p className="text-slate-400 text-sm">Singapore Map Active — Hotspots Loaded: {hotspots.length}</p>
+          <p className="text-slate-400 text-sm">Interactive Map Active — Hotspots Loaded: {hotspots.length}</p>
         </div>
 
-        {/* Top Hotspots Sidebar */}
         <div className="bg-[#151B2E] border border-slate-800 rounded-xl p-4 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 className="font-bold text-sm text-white flex items-center gap-2">
@@ -115,10 +109,9 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-
-          <AdBanner dataAdSlot="1234567890" />
         </div>
       </div>
     </main>
   );
 }
+'@ -Encoding utf8

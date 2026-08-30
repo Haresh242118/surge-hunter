@@ -1,8 +1,9 @@
-﻿import './globals.css';
+Set-Content -Path "src/app/layout.tsx" -Value @'
+import './globals.css';
 
 export const metadata = {
-  title: 'Surge Hunter — Singapore Ride-Hailing Surge Finder',
-  description: 'Find real-time Grab, Gojek, TADA, and Ryde surge hotspots in Singapore.',
+  title: 'Surge Hunter — SG Ride-Hailing Monitor',
+  description: 'Real-time surge monitoring for Singapore drivers.',
 };
 
 export default function RootLayout({
@@ -18,3 +19,4 @@ export default function RootLayout({
     </html>
   );
 }
+'@ -Encoding utf8
