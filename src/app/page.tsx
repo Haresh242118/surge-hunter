@@ -23,16 +23,6 @@ const INITIAL_HOTSPOTS = [
   { zoneName: 'Clarke Quay', reason: 'Nightlife & dining pickup surge', score: 89, lat: 1.2906, lng: 103.8465, baseFare: 11 },
 ];
 
-// Generate 6-hour forward demand forecast
-const PREDICTIVE_HOURS = Array.from({ length: 6 }, (_, i) => {
-  const d = new Date();
-  d.setHours(d.getHours() + i + 1);
-  return {
-    time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    score: Math.min(98, Math.max(60, Math.floor(75 + Math.sin(i) * 20))),
-  };
-});
-
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -48,6 +38,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 export default function DashboardPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['Grab', 'Gojek', 'TADA', 'Ryde']);
   const [hotspots] = useState(INITIAL_HOTSPOTS);
+  const [selectedHotspot, setSelectedHotspot] = useState(INITIAL_HOTSPOTS[0]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [userSurgeScore, setUserSurgeScore] = useState<number | null>(null);
   const [gpsStatus, setGpsStatus] = useState<string>('Detecting Location...');
@@ -57,6 +48,22 @@ export default function DashboardPage() {
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [onlineUsers, setOnlineUsers] = useState<number>(14);
+
+  // Dynamic Location-Based 6-Hour Forecast Generator
+  const getForecastForZone = useCallback((baseScore: number) => {
+    return Array.from({ length: 6 }, (_, i) => {
+      const d = new Date();
+      d.setHours(d.getHours() + i + 1);
+      const fluctuation = Math.floor(Math.sin(i + baseScore) * 12);
+      const score = Math.min(99, Math.max(50, baseScore + fluctuation));
+      return {
+        time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        score,
+      };
+    });
+  }, []);
+
+  const forecastData = getForecastForZone(selectedHotspot.score);
 
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -79,7 +86,6 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Request Web Push Notification Permission
   const enablePushNotifications = async () => {
     if ('Notification' in window) {
       const permission = await Notification.requestPermission();
@@ -125,7 +131,6 @@ export default function DashboardPage() {
         setMultipliers(data.platformSurges);
         speakNotification('Updated surge zones.');
 
-        // Trigger Push Alert if high surge detected
         if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
           const criticalSpot = hotspots.find(h => h.score >= 90);
           if (criticalSpot) {
@@ -188,7 +193,6 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans overflow-x-hidden">
-      {/* Top Banner */}
       <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-3 md:px-4 py-2 text-[11px] md:text-xs font-semibold flex items-center justify-between">
         <div className="flex items-center gap-2 truncate pr-2">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
@@ -202,7 +206,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Marquee Ticker */}
       <div className="bg-[#0f172a] border-b border-slate-800 py-1.5 px-3 md:px-4 overflow-hidden flex items-center gap-2 md:gap-3 text-xs">
         <div className="flex items-center gap-1 text-red-400 font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20 text-[10px] md:text-xs whitespace-nowrap shrink-0 z-10">
           <Zap className="w-3 h-3 fill-red-400 animate-bounce" />
@@ -223,7 +226,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Header */}
       <header className="border-b border-slate-800 bg-[#151B2E] px-4 md:px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -234,7 +236,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Link to Dedicated Traffic Cameras Page */}
           <Link
             href="/cameras"
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-all"
@@ -243,7 +244,6 @@ export default function DashboardPage() {
             <span>Traffic Cams</span>
           </Link>
 
-          {/* Web Push Alerts Toggle */}
           <button
             onClick={enablePushNotifications}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold border transition-all ${
@@ -303,16 +303,17 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Predictive Demand Bar */}
+      {/* Location-Specific Predictive Demand Forecast Bar */}
       <div className="bg-[#151B2E] border-b border-slate-800 px-4 py-3">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
           <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
             <BarChart3 className="w-4 h-4 text-blue-400" />
-            Predictive Demand & Peak Hours Forecast (Next 6 Hours)
+            Forecast for: <span className="text-blue-400 underline">{selectedHotspot.zoneName}</span>
           </span>
+          <span className="text-[10px] text-slate-400">(Click any hotspot below to switch location)</span>
         </div>
-        <div className="grid grid-cols-6 gap-2">
-          {PREDICTIVE_HOURS.map((item, idx) => (
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {forecastData.map((item, idx) => (
             <div key={idx} className="bg-[#0B1020] border border-slate-800 rounded-lg p-2 text-center">
               <span className="text-[10px] text-slate-400 block">{item.time}</span>
               <span className={`text-xs font-black ${item.score > 85 ? 'text-red-400' : 'text-amber-400'}`}>
@@ -351,12 +352,22 @@ export default function DashboardPage() {
               const activeMultipliers = selectedPlatforms.map(p => parseFloat(multipliers[p] || '1.0'));
               const lowestMultiplier = activeMultipliers.length > 0 ? Math.min(...activeMultipliers) : 1.0;
               const estimatedFare = (spot.baseFare * lowestMultiplier).toFixed(1);
+              const isSelected = selectedHotspot.zoneName === spot.zoneName;
 
               return (
-                <div key={idx} className="bg-[#0B1020] border border-slate-800 rounded-lg p-2.5 md:p-3 hover:border-slate-600 transition-colors cursor-pointer">
+                <div 
+                  key={idx} 
+                  onClick={() => setSelectedHotspot(spot)}
+                  className={`bg-[#0B1020] border rounded-lg p-2.5 md:p-3 transition-colors cursor-pointer ${
+                    isSelected ? 'border-blue-500 bg-blue-950/20 shadow-lg shadow-blue-500/10' : 'border-slate-800 hover:border-slate-600'
+                  }`}
+                >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-xs md:text-sm text-slate-200">{spot.zoneName}</h3>
+                      <h3 className="font-semibold text-xs md:text-sm text-slate-200 flex items-center gap-1.5">
+                        {spot.zoneName}
+                        {isSelected && <span className="text-[9px] bg-blue-600 text-white px-1.5 py-0.2 rounded">Forecasted</span>}
+                      </h3>
                       <p className="text-[10px] md:text-[11px] text-slate-400 mt-0.5">{spot.reason}</p>
                       <div className="flex items-center gap-2 mt-1.5 text-[10px] md:text-[11px] text-slate-300">
                         <span className="flex items-center text-emerald-400 font-semibold">
