@@ -10,7 +10,26 @@ interface Hotspot {
   lng: number;
 }
 
-export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; userLocation?: { lat: number; lng: number } | null }) {
+interface TaxiStand {
+  TaxiCode: string;
+  Name: string;
+  Latitude: number;
+  Longitude: number;
+}
+
+interface MapProps {
+  hotspots: Hotspot[];
+  userLocation?: { lat: number; lng: number } | null;
+  taxiStands?: TaxiStand[];
+  showTaxiStands?: boolean;
+}
+
+export default function Map({ 
+  hotspots, 
+  userLocation, 
+  taxiStands = [], 
+  showTaxiStands = false 
+}: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletInstance = useRef<any>(null);
 
@@ -51,6 +70,7 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+      // Render Hotspots
       hotspots.forEach((spot) => {
         const color = spot.score > 90 ? '#ef4444' : spot.score > 80 ? '#f59e0b' : '#2563eb';
         const customIcon = L.divIcon({
@@ -75,6 +95,31 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
         `);
       });
 
+      // Render LTA Taxi Stands
+      if (showTaxiStands && taxiStands.length > 0) {
+        taxiStands.forEach((stand) => {
+          const standIcon = L.divIcon({
+            className: 'taxi-stand-pin',
+            html: `
+              <div style="background-color: #0284c7; color: white; border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: bold; border: 1px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                🚕 ${stand.TaxiCode}
+              </div>
+            `,
+            iconSize: [40, 20],
+            iconAnchor: [20, 10],
+          });
+
+          const marker = L.marker([stand.Latitude, stand.Longitude], { icon: standIcon }).addTo(map);
+          marker.bindPopup(`
+            <div style="font-family: sans-serif; padding: 4px; color: #0f172a;">
+              <strong style="font-size: 11px;">🚖 LTA Taxi Stand: ${stand.TaxiCode}</strong>
+              <div style="font-size: 10px; color: #475569; margin-top: 2px;">${stand.Name}</div>
+            </div>
+          `);
+        });
+      }
+
+      // Render User GPS Pin
       if (userLocation) {
         const userIcon = L.divIcon({
           className: 'user-gps-pin',
@@ -101,7 +146,7 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
         leafletInstance.current = null;
       }
     };
-  }, [hotspots, userLocation]);
+  }, [hotspots, userLocation, taxiStands, showTaxiStands]);
 
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden border border-slate-800">

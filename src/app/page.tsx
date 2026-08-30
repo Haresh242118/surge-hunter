@@ -14,7 +14,16 @@ const SurgeMap = dynamic(() => import('../components/Map'), {
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
 
-const INITIAL_HOTSPOTS = [
+interface Hotspot {
+  zoneName: string;
+  reason: string;
+  score: number;
+  lat: number;
+  lng: number;
+  baseFare: number;
+}
+
+const INITIAL_HOTSPOTS: Hotspot[] = [
   { zoneName: 'Changi Airport T3', reason: 'High incoming international arrivals', score: 94, lat: 1.3560, lng: 103.9870, baseFare: 14 },
   { zoneName: 'Marina Bay Sands', reason: 'Event & casino crowd dispersion', score: 88, lat: 1.2834, lng: 103.8607, baseFare: 11 },
   { zoneName: 'Orchard Road', reason: 'Peak shopping & dining hours', score: 82, lat: 1.3048, lng: 103.8318, baseFare: 10 },
@@ -40,8 +49,8 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 export default function DashboardPage() {
   const [perspective, setPerspective] = useState<'rider' | 'driver'>('rider');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['Grab', 'Gojek', 'TADA', 'Ryde']);
-  const [hotspots] = useState(INITIAL_HOTSPOTS);
-  const [selectedHotspot, setSelectedHotspot] = useState(INITIAL_HOTSPOTS[0]);
+  const [hotspots] = useState<Hotspot[]>(INITIAL_HOTSPOTS);
+  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot>(INITIAL_HOTSPOTS[0]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [userSurgeScore, setUserSurgeScore] = useState<number | null>(null);
   const [gpsStatus, setGpsStatus] = useState<string>('Detect Location');
@@ -233,7 +242,6 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#070A12] text-slate-100 flex flex-col font-sans antialiased selection:bg-blue-500 selection:text-white">
-      {/* Modals */}
       <AnalyticsModal 
         isOpen={isAnalyticsOpen} 
         onClose={() => setIsAnalyticsOpen(false)} 
@@ -246,7 +254,6 @@ export default function DashboardPage() {
         baseFare={selectedHotspot.baseFare}
       />
 
-      {/* Modern Sleek Top Command Bar */}
       <div className="bg-[#0D1322]/80 backdrop-blur-md border-b border-slate-800/80 px-4 py-2 text-xs font-medium flex items-center justify-between text-slate-300">
         <div className="flex items-center gap-2 truncate">
           <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -268,7 +275,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Marquee Ticker */}
       <div className="bg-[#0B1020] border-b border-slate-800/60 py-1.5 px-4 overflow-hidden flex items-center gap-3 text-xs">
         <div className="flex items-center gap-1 text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20 text-[10px] whitespace-nowrap shrink-0 z-10">
           <Zap className="w-3 h-3 fill-red-400 animate-bounce" />
@@ -289,7 +295,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Glass Header */}
       <header className="border-b border-slate-800/80 bg-[#0F172A]/90 backdrop-blur-xl px-4 md:px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div>
@@ -399,7 +404,6 @@ export default function DashboardPage() {
             <span className="truncate max-w-[160px]">{gpsStatus}</span>
           </button>
 
-          {/* Platform Pills */}
           <div className="flex items-center gap-1.5 border-l border-slate-800 pl-3">
             {PLATFORMS.map((p) => (
               <button
@@ -419,7 +423,6 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Forecast Bar */}
       <div className="bg-[#0D1322] border-b border-slate-800/80 px-4 py-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2.5 gap-1">
           <span className="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -440,7 +443,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content Layout */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
         <div className="lg:col-span-3 bg-[#0F172A]/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-1 h-[400px] sm:h-[480px] lg:h-[580px] flex items-center justify-center relative overflow-hidden shadow-2xl">
           <SurgeMap 
