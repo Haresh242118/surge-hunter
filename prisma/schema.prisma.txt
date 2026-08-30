@@ -1,0 +1,25 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model HotspotCell {
+  id              String   @id @default(uuid())
+  cellId          String   @unique @map("cell_id")
+  zoneName        String   @map("zone_name")
+  latitude        Float
+  longitude       Float
+  surgeScore      Float    @map("surge_score")
+  demandScore     Float    @map("demand_score")
+  trafficScore    Float    @map("traffic_score")
+  historicalScore Float    @map("historical_score")
+  platformData    Json     @map("platform_data")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("hotspot_cells")
+}
