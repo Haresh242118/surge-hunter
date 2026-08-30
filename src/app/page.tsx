@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users, Camera, Bell, BarChart3, CloudRain, Calculator, MapPin, Sparkles, Activity, Compass, Tag, Car, Truck } from 'lucide-react';
+import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users, Camera, Bell, BarChart3, CloudRain, Calculator, MapPin, Sparkles, Activity, Compass, Tag, Car, Truck, Route } from 'lucide-react';
 import AnalyticsModal from '../components/AnalyticsModal';
 import ProfitCalculatorModal from '../components/ProfitCalculatorModal';
 
@@ -494,6 +494,10 @@ export default function DashboardPage() {
                         <span className="flex items-center gap-1 bg-slate-800/80 border border-slate-700/80 text-slate-400 px-2 py-0.5 rounded">
                           <Tag className="w-3 h-3 shrink-0 text-slate-500" />
                           <span>Base: S${spot.baseFare}</span>
+                        </span>
+                        <span className="flex items-center gap-1 bg-indigo-950/40 border border-indigo-800/40 text-indigo-300 px-2 py-0.5 rounded">
+                          <Route className="w-3 h-3 shrink-0 text-indigo-400" />
+                          <span>Avg: {spot.avgDistanceKm} km</span>
                         </span>
                       </div>
 
