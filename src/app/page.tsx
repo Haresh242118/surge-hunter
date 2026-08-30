@@ -11,15 +11,16 @@ const SurgeMap = dynamic(() => import('../components/Map'), {
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
 
+// Adjusted realistic base fares for Singapore rides (off-peak/short distance baseline)
 const INITIAL_HOTSPOTS = [
-  { zoneName: 'Changi Airport T3', reason: 'High incoming international arrivals', score: 94, lat: 1.3560, lng: 103.9870, baseFare: 28 },
-  { zoneName: 'Marina Bay Sands', reason: 'Event & casino crowd dispersion', score: 88, lat: 1.2834, lng: 103.8607, baseFare: 18 },
-  { zoneName: 'Orchard Road', reason: 'Peak shopping & dining hours', score: 82, lat: 1.3048, lng: 103.8318, baseFare: 15 },
-  { zoneName: 'VivoCity & Sentosa Gateway', reason: 'Weekend island traffic bottleneck', score: 85, lat: 1.2644, lng: 103.8222, baseFare: 20 },
-  { zoneName: 'Jurong East Central', reason: 'Commuter interchange rush hour', score: 78, lat: 1.3329, lng: 103.7436, baseFare: 22 },
-  { zoneName: 'Woodlands Checkpoint', reason: 'Cross-border causeway congestion', score: 91, lat: 1.4423, lng: 103.7698, baseFare: 30 },
-  { zoneName: 'Suntec City & Convention Centre', reason: 'Exhibition & business peak exit', score: 80, lat: 1.2933, lng: 103.8572, baseFare: 16 },
-  { zoneName: 'Clarke Quay', reason: 'Nightlife & dining pickup surge', score: 89, lat: 1.2906, lng: 103.8465, baseFare: 19 },
+  { zoneName: 'Changi Airport T3', reason: 'High incoming international arrivals', score: 94, lat: 1.3560, lng: 103.9870, baseFare: 14 },
+  { zoneName: 'Marina Bay Sands', reason: 'Event & casino crowd dispersion', score: 88, lat: 1.2834, lng: 103.8607, baseFare: 11 },
+  { zoneName: 'Orchard Road', reason: 'Peak shopping & dining hours', score: 82, lat: 1.3048, lng: 103.8318, baseFare: 10 },
+  { zoneName: 'VivoCity & Sentosa Gateway', reason: 'Weekend island traffic bottleneck', score: 85, lat: 1.2644, lng: 103.8222, baseFare: 12 },
+  { zoneName: 'Jurong East Central', reason: 'Commuter interchange rush hour', score: 78, lat: 1.3329, lng: 103.7436, baseFare: 13 },
+  { zoneName: 'Woodlands Checkpoint', reason: 'Cross-border causeway congestion', score: 91, lat: 1.4423, lng: 103.7698, baseFare: 18 },
+  { zoneName: 'Suntec City & Convention Centre', reason: 'Exhibition & business peak exit', score: 80, lat: 1.2933, lng: 103.8572, baseFare: 10 },
+  { zoneName: 'Clarke Quay', reason: 'Nightlife & dining pickup surge', score: 89, lat: 1.2906, lng: 103.8465, baseFare: 11 },
 ];
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -41,7 +42,7 @@ export default function DashboardPage() {
   const [userSurgeScore, setUserSurgeScore] = useState<number | null>(null);
   const [gpsStatus, setGpsStatus] = useState<string>('Detecting Location...');
   const [loading, setLoading] = useState<boolean>(false);
-  const [multipliers, setMultipliers] = useState<Record<string, string>>({ Grab: '1.5', Gojek: '1.3', TADA: '1.1', Ryde: '1.2' });
+  const [multipliers, setMultipliers] = useState<Record<string, string>>({ Grab: '1.2', Gojek: '1.1', TADA: '1.0', Ryde: '1.1' });
 
   const fetchSurgeData = async () => {
     setLoading(true);
@@ -172,7 +173,8 @@ export default function DashboardPage() {
 
           <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[480px]">
             {hotspots.map((spot, idx) => {
-              const lowestMultiplier = Math.min(...selectedPlatforms.map(p => parseFloat(multipliers[p] || '1.0')));
+              const activeMultipliers = selectedPlatforms.map(p => parseFloat(multipliers[p] || '1.0'));
+              const lowestMultiplier = activeMultipliers.length > 0 ? Math.min(...activeMultipliers) : 1.0;
               const estimatedFare = (spot.baseFare * lowestMultiplier).toFixed(1);
 
               return (
