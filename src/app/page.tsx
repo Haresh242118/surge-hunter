@@ -1,23 +1,30 @@
 ﻿'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { AlertTriangle, Navigation, RefreshCw } from 'lucide-react';
+
+// Dynamically import the map to disable Server-Side Rendering (SSR)
+const SurgeMap = dynamic(() => import('../components/Map'), { 
+  ssr: false, 
+  loading: () => <p className="text-slate-400 text-sm animate-pulse">Initializing Surge Map...</p> 
+});
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
 
 export default function DashboardPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['Grab', 'Gojek', 'TADA', 'Ryde']);
-  const [hotspots, setHotspots] = useState<any[]>([
-    { zoneName: 'Changi Airport T3', reason: 'High incoming arrivals', score: 94 },
-    { zoneName: 'Marina Bay Sands', reason: 'Event crowd dispersion', score: 88 },
-    { zoneName: 'Orchard Road', reason: 'Peak shopping hours', score: 79 }
-  ]);
   const [loading, setLoading] = useState<boolean>(false);
+  
+  // Added GPS coordinates for Singapore zones
+  const [hotspots] = useState([
+    { zoneName: 'Changi Airport T3', reason: 'High incoming arrivals', score: 94, coords: [1.3560, 103.9870] },
+    { zoneName: 'Marina Bay Sands', reason: 'Event crowd dispersion', score: 88, coords: [1.2834, 103.8607] },
+    { zoneName: 'Orchard Road', reason: 'Peak shopping hours', score: 79, coords: [1.3048, 103.8318] }
+  ]);
 
   const togglePlatform = (p: string) => {
-    setSelectedPlatforms(prev =>
-      prev.includes(p) ? prev.filter(item => item !== p) : [...prev, p]
-    );
+    setSelectedPlatforms(prev => prev.includes(p) ? prev.filter(item => item !== p) : [...prev, p]);
   };
 
   return (
@@ -41,28 +48,25 @@ export default function DashboardPage() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-slate-400 font-medium mr-2">Platforms:</span>
-          {PLATFORMS.map((p) => {
-            const active = selectedPlatforms.includes(p);
-            return (
-              <button
-                key={p}
-                onClick={() => togglePlatform(p)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  active
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                    : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'
-                }`}
-              >
-                {p}
-              </button>
-            );
-          })}
+          {PLATFORMS.map((p) => (
+            <button
+              key={p}
+              onClick={() => togglePlatform(p)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                selectedPlatforms.includes(p)
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                  : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'
+              }`}
+            >
+              {p}
+            </button>
+          ))}
         </div>
       </header>
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
-        <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-4 min-h-[500px] flex items-center justify-center">
-          <p className="text-slate-400 text-sm">Interactive Surge Map — Hotspots Loaded: {hotspots.length}</p>
+        <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-0.5 min-h-[500px] flex items-center justify-center relative overflow-hidden">
+          <SurgeMap hotspots={hotspots} />
         </div>
 
         <div className="bg-[#151B2E] border border-slate-800 rounded-xl p-4 flex flex-col gap-4">
@@ -71,24 +75,23 @@ export default function DashboardPage() {
               <Navigation className="w-4 h-4 text-blue-400" />
               High Demand Hotspots
             </h2>
-            <button
-              onClick={() => setLoading(!loading)}
-              className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
-            >
+            <button onClick={() => setLoading(!loading)} className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors">
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-3 pr-1">
             {hotspots.map((spot, idx) => (
-              <div key={idx} className="bg-[#0B1020] border border-slate-800 rounded-lg p-3">
+              <div key={idx} className="bg-[#0B1020] border border-slate-800 rounded-lg p-3 hover:border-slate-600 transition-colors cursor-pointer">
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold text-sm text-slate-200">{spot.zoneName}</h3>
                     <p className="text-[11px] text-slate-400 mt-0.5">{spot.reason}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-lg font-black text-emerald-400">{spot.score}</span>
+                    <span className={`text-lg font-black ${spot.score > 90 ? 'text-red-400' : spot.score > 80 ? 'text-amber-400' : 'text-blue-400'}`}>
+                      {spot.score}
+                    </span>
                     <span className="text-[10px] block text-slate-500">/100</span>
                   </div>
                 </div>
