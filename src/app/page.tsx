@@ -88,7 +88,7 @@ export default function DashboardPage() {
     try {
       const res = await fetch('/api/taxistands');
       const data = await res.json();
-      if (data.taxiStands) setTaxiStands(data.taxiStands);
+      if (data.pickupPoints) setTaxiStands(data.pickupPoints);
     } catch (e) {
       console.error(e);
     }
@@ -253,7 +253,6 @@ export default function DashboardPage() {
         baseFare={selectedHotspot.baseFare}
       />
 
-      {/* Top Status Command Bar */}
       <div className="bg-[#0D1322]/80 backdrop-blur-md border-b border-slate-800/80 px-4 py-2 text-xs font-medium flex items-center justify-between text-slate-300">
         <div className="flex items-center gap-2 truncate">
           <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -275,7 +274,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Marquee Ticker */}
       <div className="bg-[#0B1020] border-b border-slate-800/60 py-1.5 px-4 overflow-hidden flex items-center gap-3 text-xs">
         <div className="flex items-center gap-1 text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20 text-[10px] whitespace-nowrap shrink-0 z-10">
           <Zap className="w-3 h-3 fill-red-400 animate-bounce" />
@@ -296,7 +294,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Header */}
       <header className="border-b border-slate-800/80 bg-[#0F172A]/90 backdrop-blur-xl px-4 md:px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -325,7 +322,7 @@ export default function DashboardPage() {
             }`}
           >
             <MapPin className="w-3.5 h-3.5" />
-            <span>{showTaxiStands ? 'Hide Pickup Bays' : 'LTA Taxi Bays'}</span>
+            <span>{showTaxiStands ? 'Hide Pickup Bays' : 'Pickup Bays (Taxi/PHV)'}</span>
           </button>
 
           <button
@@ -384,7 +381,6 @@ export default function DashboardPage() {
             <span className="truncate max-w-[160px]">{gpsStatus}</span>
           </button>
 
-          {/* Platform Pills */}
           <div className="flex items-center gap-1.5 border-l border-slate-800 pl-3">
             {PLATFORMS.map((p) => (
               <button
@@ -404,7 +400,6 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Forecast Bar */}
       <div className="bg-[#0D1322] border-b border-slate-800/80 px-4 py-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2.5 gap-1">
           <span className="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -425,7 +420,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content Layout */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
         <div className="lg:col-span-3 bg-[#0F172A]/80 backdrop-blur-md border border-slate-800/80 rounded-2xl p-1 h-[400px] sm:h-[480px] lg:h-[580px] flex items-center justify-center relative overflow-hidden shadow-2xl">
           <SurgeMap 
