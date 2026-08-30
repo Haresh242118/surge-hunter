@@ -1,14 +1,30 @@
+﻿import type { Metadata } from 'next';
 import './globals.css';
 
-export const metadata = {
-  title: 'Surge Hunter — SG Ride-Hailing Monitor',
-  description: 'Real-time surge monitoring for Singapore drivers.',
+export const metadata: Metadata = {
+  title: 'Surge Hunter — SG Ride-Hailing Demand',
+  description: 'Real-time Singapore ride-hailing demand & surge monitor',
+  manifest: '/manifest.json',
+  themeColor: '#0B1020',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Surge Hunter',
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="bg-[#0B1020] text-slate-100 antialiased">{children}</body>
+      <head>
+        <link rel="icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f3af.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

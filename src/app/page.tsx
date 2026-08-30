@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX } from 'lucide-react';
+import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download } from 'lucide-react';
 
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
@@ -43,11 +43,32 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [multipliers, setMultipliers] = useState<Record<string, string>>({ Grab: '1.2', Gojek: '1.1', TADA: '1.0', Ryde: '1.1' });
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
-  // Web Speech API Voice Notification
+  useEffect(() => {
+    // Capture PWA install prompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    });
+  }, []);
+
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
+          setDeferredPrompt(null);
+        }
+      });
+    } else {
+      alert('To install on iOS: Tap Share -> Add to Home Screen.\nOn Android: Tap browser options (⋮) -> Install App.');
+    }
+  };
+
   const speakNotification = (text: string) => {
     if (!audioEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel(); // Cancel any ongoing audio
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
@@ -116,7 +137,6 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans overflow-x-hidden">
-      {/* Top Banner */}
       <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-3 md:px-4 py-2 text-[11px] md:text-xs font-semibold flex items-center justify-between">
         <div className="flex items-center gap-2 truncate pr-2">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
@@ -125,7 +145,6 @@ export default function DashboardPage() {
         <span className="bg-amber-500/20 px-2 py-0.5 rounded text-[10px] shrink-0">ACTIVE</span>
       </div>
 
-      {/* Dynamic Live Ticker Bar */}
       <div className="bg-[#0f172a] border-b border-slate-800 py-1.5 px-3 md:px-4 overflow-hidden flex items-center gap-2 md:gap-3 text-xs">
         <div className="flex items-center gap-1 text-red-400 font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20 text-[10px] md:text-xs whitespace-nowrap shrink-0 z-10">
           <Zap className="w-3 h-3 fill-red-400 animate-bounce" />
@@ -146,7 +165,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Header */}
       <header className="border-b border-slate-800 bg-[#151B2E] px-4 md:px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -157,7 +175,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Audio Mute/Unmute Toggle */}
+          {/* Install PWA Button */}
+          <button
+            onClick={handleInstallClick}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 transition-all"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Install App</span>
+          </button>
+
           <button
             onClick={() => setAudioEnabled(!audioEnabled)}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold border transition-all ${
@@ -197,14 +223,11 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Main Grid Content */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-3 md:p-4">
-        {/* Map Container */}
         <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-1 h-[380px] sm:h-[450px] lg:h-[550px] flex items-center justify-center relative overflow-hidden">
           <SurgeMap hotspots={hotspots} userLocation={userLocation} />
         </div>
 
-        {/* Hotspots Sidebar */}
         <div className="bg-[#151B2E] border border-slate-800 rounded-xl p-3.5 md:p-4 flex flex-col gap-3 md:gap-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
             <h2 className="font-bold text-xs md:text-sm text-white flex items-center gap-2">
