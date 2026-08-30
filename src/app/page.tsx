@@ -464,7 +464,6 @@ export default function DashboardPage() {
               const activeMultipliers = selectedPlatforms.map(p => parseFloat(multipliers[p] || '1.0'));
               const highestMultiplier = activeMultipliers.length > 0 ? Math.max(...activeMultipliers) : 1.0;
               const estimatedGross4Seater = (spot.baseFare * highestMultiplier * weather.surgeMultiplier).toFixed(1);
-              const estimated6Seater = (spot.avgDistanceKm * 2.0 * weather.surgeMultiplier).toFixed(0);
               const isSelected = selectedHotspot.zoneName === spot.zoneName;
 
               return (
@@ -485,8 +484,8 @@ export default function DashboardPage() {
                       </h3>
                       <p className="text-[11px] text-slate-400 mt-0.5">{spot.reason}</p>
                       
-                      {/* Standard Gross & Base Fare Row */}
-                      <div className="flex items-center gap-2 mt-2.5 text-[10px] font-mono">
+                      {/* Standard Gross, Base Fare & Avg Distance Row */}
+                      <div className="flex items-center gap-2 mt-2.5 text-[10px] font-mono flex-wrap">
                         <span className="flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded font-bold">
                           <DollarSign className="w-3 h-3 shrink-0" />
                           <span>Gross: S${estimatedGross4Seater}</span>
@@ -501,15 +500,19 @@ export default function DashboardPage() {
                         </span>
                       </div>
 
-                      {/* Explicit 6-Seater & Minibus Rates Row */}
-                      <div className="flex items-center gap-2 mt-1.5 text-[10px] font-mono">
+                      {/* Vehicle Class Rate Averages Row */}
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] font-mono flex-wrap">
+                        <span className="flex items-center gap-1 bg-emerald-950/40 border border-emerald-800/40 text-emerald-300 px-2 py-0.5 rounded">
+                          <Car className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span>4-Seater: ~S$0.80–S$1+/km</span>
+                        </span>
                         <span className="flex items-center gap-1 bg-blue-950/50 border border-blue-800/50 text-blue-300 px-2 py-0.5 rounded">
                           <Car className="w-3 h-3 text-blue-400 shrink-0" />
-                          <span>6-Seater: ~S${estimated6Seater} ($2/km)</span>
+                          <span>6-Seater: ~S$2+/km</span>
                         </span>
                         <span className="flex items-center gap-1 bg-amber-950/50 border border-amber-800/50 text-amber-300 px-2 py-0.5 rounded">
                           <Truck className="w-3 h-3 text-amber-400 shrink-0" />
-                          <span>Minibus: S$40-60/job</span>
+                          <span>Minibus: ~S$40–S$60/job</span>
                         </span>
                       </div>
                     </div>
