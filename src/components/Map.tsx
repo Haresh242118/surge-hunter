@@ -71,7 +71,7 @@ export default function Map({
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // Render Hotspots (Pulsing Pins)
+      // Hotspots
       hotspots.forEach((spot) => {
         const color = spot.score > 90 ? '#ef4444' : spot.score > 80 ? '#f59e0b' : '#10b981';
         const customIcon = L.divIcon({
@@ -96,13 +96,13 @@ export default function Map({
         `);
       });
 
-      // Render Taxi (RED) & PHV (BLUE) Pickup Points
+      // Taxi (Red) & PHV (Blue) Pins
       if (showTaxiStands && taxiStands.length > 0) {
         taxiStands.forEach((point) => {
           const isPhv = point.type === 'phv';
-          const bgColor = isPhv ? '#2563eb' : '#dc2626'; // Blue for PHV, Red for Taxi
+          const bgColor = isPhv ? '#2563eb' : '#dc2626';
           const iconSymbol = isPhv ? '🚗' : '🚕';
-          const labelPrefix = isPhv ? 'PHV Pickup' : 'Taxi Stand';
+          const labelPrefix = isPhv ? 'PHV Point' : 'Taxi Bay';
 
           const pointIcon = L.divIcon({
             className: 'pickup-point-pin',
@@ -125,7 +125,7 @@ export default function Map({
         });
       }
 
-      // Render User GPS Pin
+      // User Position Marker
       if (userLocation) {
         const userIcon = L.divIcon({
           className: 'user-gps-pin',
@@ -140,7 +140,7 @@ export default function Map({
         });
 
         const userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon }).addTo(map);
-        userMarker.bindPopup('<strong style="color: #10b981; font-size: 11px;">📍 Your Current GPS Location</strong>').openPopup();
+        userMarker.bindPopup('<strong style="color: #10b981; font-size: 11px;">📍 Current Driver Location</strong>').openPopup();
       }
     };
 
@@ -157,6 +157,23 @@ export default function Map({
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden border border-slate-800">
       <div ref={mapRef} className="w-full h-full z-10" />
+
+      {/* Floating Map Overlay Legend */}
+      <div className="absolute top-3 right-3 z-20 bg-[#070A12]/90 backdrop-blur-md border border-slate-800 p-2.5 rounded-xl shadow-xl text-[10px] font-mono space-y-1.5 pointer-events-auto">
+        <div className="font-bold text-slate-300 border-b border-slate-800 pb-1 mb-1">MAP LEGEND</div>
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-600 border border-white" />
+          <span className="text-slate-200">PHV Pickup (Blue)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-600 border border-white" />
+          <span className="text-slate-200">Taxi Bay (Red)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-slate-200">Surge Hotspot</span>
+        </div>
+      </div>
     </div>
   );
 }
