@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users, Camera, Bell, BarChart3 } from 'lucide-react';
+import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users, Camera, Bell, BarChart3, CloudRain } from 'lucide-react';
+import AnalyticsModal from '../components/AnalyticsModal';
 
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
@@ -48,22 +49,43 @@ export default function DashboardPage() {
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [onlineUsers, setOnlineUsers] = useState<number>(14);
+  const [weather, setWeather] = useState<{ condition: string; isRaining: boolean; surgeMultiplier: number }>({
+    condition: 'Loading NEA Weather...',
+    isRaining: false,
+    surgeMultiplier: 1.0,
+  });
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState<boolean>(false);
 
-  // Dynamic Location-Based 6-Hour Forecast Generator
   const getForecastForZone = useCallback((baseScore: number) => {
     return Array.from({ length: 6 }, (_, i) => {
       const d = new Date();
       d.setHours(d.getHours() + i + 1);
       const fluctuation = Math.floor(Math.sin(i + baseScore) * 12);
-      const score = Math.min(99, Math.max(50, baseScore + fluctuation));
+      const score = Math.min(99, Math.max(50, Math.floor(baseScore * weather.surgeMultiplier) + fluctuation));
       return {
         time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         score,
       };
     });
-  }, []);
+  }, [weather.surgeMultiplier]);
 
   const forecastData = getForecastForZone(selectedHotspot.score);
+
+  const fetchWeatherData = async () => {
+    try {
+      const res = await fetch('/api/weather');
+      const data = await res.json();
+      if (data.condition) {
+        setWeather({
+          condition: data.condition,
+          isRaining: data.isRaining,
+          surgeMultiplier: data.surgeMultiplier,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -82,6 +104,7 @@ export default function DashboardPage() {
     };
 
     fetchOnlineCount();
+    fetchWeatherData();
     const interval = setInterval(fetchOnlineCount, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -125,6 +148,7 @@ export default function DashboardPage() {
   const fetchSurgeData = async () => {
     setLoading(true);
     try {
+      await fetchWeatherData();
       const res = await fetch('/api/surge');
       const data = await res.json();
       if (data.platformSurges) {
@@ -193,6 +217,14 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans overflow-x-hidden">
+      {/* Analytics Modal */}
+      <AnalyticsModal 
+        isOpen={isAnalyticsOpen} 
+        onClose={() => setIsAnalyticsOpen(false)} 
+        zoneName={selectedHotspot.zoneName} 
+      />
+
+      {/* Top Banner */}
       <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-3 md:px-4 py-2 text-[11px] md:text-xs font-semibold flex items-center justify-between">
         <div className="flex items-center gap-2 truncate pr-2">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
@@ -206,6 +238,20 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* NEA Weather Bar */}
+      <div className="bg-blue-950/40 border-b border-blue-800/40 px-4 py-1.5 text-xs flex items-center justify-between text-blue-300">
+        <div className="flex items-center gap-2">
+          <CloudRain className="w-3.5 h-3.5 text-blue-400" />
+          <span>NEA Weather Overlay: <strong className="text-white">{weather.condition}</strong></span>
+        </div>
+        {weather.isRaining && (
+          <span className="bg-blue-500/20 border border-blue-500/30 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded">
+            Rain Impact: +25% Surge Demand
+          </span>
+        )}
+      </div>
+
+      {/* Marquee Ticker */}
       <div className="bg-[#0f172a] border-b border-slate-800 py-1.5 px-3 md:px-4 overflow-hidden flex items-center gap-2 md:gap-3 text-xs">
         <div className="flex items-center gap-1 text-red-400 font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20 text-[10px] md:text-xs whitespace-nowrap shrink-0 z-10">
           <Zap className="w-3 h-3 fill-red-400 animate-bounce" />
@@ -226,6 +272,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Header */}
       <header className="border-b border-slate-800 bg-[#151B2E] px-4 md:px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -236,6 +283,14 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setIsAnalyticsOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 transition-all"
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>Weekly Trends</span>
+          </button>
+
           <Link
             href="/cameras"
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition-all"
@@ -303,7 +358,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Location-Specific Predictive Demand Forecast Bar */}
+      {/* Predictive Demand Forecast Bar */}
       <div className="bg-[#151B2E] border-b border-slate-800 px-4 py-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
           <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
@@ -351,7 +406,7 @@ export default function DashboardPage() {
             {hotspots.map((spot, idx) => {
               const activeMultipliers = selectedPlatforms.map(p => parseFloat(multipliers[p] || '1.0'));
               const lowestMultiplier = activeMultipliers.length > 0 ? Math.min(...activeMultipliers) : 1.0;
-              const estimatedFare = (spot.baseFare * lowestMultiplier).toFixed(1);
+              const estimatedFare = (spot.baseFare * lowestMultiplier * weather.surgeMultiplier).toFixed(1);
               const isSelected = selectedHotspot.zoneName === spot.zoneName;
 
               return (
@@ -380,7 +435,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-right">
                       <span className={`text-base md:text-lg font-black ${spot.score > 90 ? 'text-red-400' : spot.score > 80 ? 'text-amber-400' : 'text-blue-400'}`}>
-                        {spot.score}
+                        {Math.floor(spot.score * weather.surgeMultiplier)}
                       </span>
                       <span className="text-[9px] md:text-[10px] block text-slate-500">/100</span>
                     </div>
