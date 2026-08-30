@@ -4,10 +4,9 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { AlertTriangle, Navigation, RefreshCw } from 'lucide-react';
 
-// Dynamically import the map to disable Server-Side Rendering (SSR)
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
-  loading: () => <p className="text-slate-400 text-sm animate-pulse">Initializing Surge Map...</p> 
+  loading: () => <div className="h-[450px] flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading Vector Map...</div> 
 });
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
@@ -15,12 +14,11 @@ const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
 export default function DashboardPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['Grab', 'Gojek', 'TADA', 'Ryde']);
   const [loading, setLoading] = useState<boolean>(false);
-  
-  // Added GPS coordinates for Singapore zones
+
   const [hotspots] = useState([
-    { zoneName: 'Changi Airport T3', reason: 'High incoming arrivals', score: 94, coords: [1.3560, 103.9870] },
-    { zoneName: 'Marina Bay Sands', reason: 'Event crowd dispersion', score: 88, coords: [1.2834, 103.8607] },
-    { zoneName: 'Orchard Road', reason: 'Peak shopping hours', score: 79, coords: [1.3048, 103.8318] }
+    { zoneName: 'Changi Airport T3', reason: 'High incoming arrivals', score: 94, x: 82, y: 48 },
+    { zoneName: 'Marina Bay Sands', reason: 'Event crowd dispersion', score: 88, x: 50, y: 62 },
+    { zoneName: 'Orchard Road', reason: 'Peak shopping hours', score: 79, x: 44, y: 52 }
   ]);
 
   const togglePlatform = (p: string) => {
@@ -65,7 +63,7 @@ export default function DashboardPage() {
       </header>
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
-        <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-0.5 min-h-[500px] flex items-center justify-center relative overflow-hidden">
+        <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-2 min-h-[500px] flex items-center justify-center relative overflow-hidden">
           <SurgeMap hotspots={hotspots} />
         </div>
 
