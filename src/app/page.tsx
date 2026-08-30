@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users, Camera, Bell, BarChart3, CloudRain, Calculator, MapPin, Sparkles, Activity, Compass, Tag, Car, Truck, Route } from 'lucide-react';
+import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX, Download, Users, Camera, Bell, BarChart3, CloudRain, Calculator, MapPin, Sparkles, Activity, Compass, Tag, Car, Truck, Route, Heart, Coffee } from 'lucide-react';
 import AnalyticsModal from '../components/AnalyticsModal';
 import ProfitCalculatorModal from '../components/ProfitCalculatorModal';
 
@@ -484,7 +484,6 @@ export default function DashboardPage() {
                       </h3>
                       <p className="text-[11px] text-slate-400 mt-0.5">{spot.reason}</p>
                       
-                      {/* Standard Gross, Base Fare & Avg Distance Row */}
                       <div className="flex items-center gap-2 mt-2.5 text-[10px] font-mono flex-wrap">
                         <span className="flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded font-bold">
                           <DollarSign className="w-3 h-3 shrink-0" />
@@ -500,7 +499,6 @@ export default function DashboardPage() {
                         </span>
                       </div>
 
-                      {/* Vehicle Class Rate Averages Row */}
                       <div className="flex items-center gap-2 mt-1.5 text-[10px] font-mono flex-wrap">
                         <span className="flex items-center gap-1 bg-emerald-950/40 border border-emerald-800/40 text-emerald-300 px-2 py-0.5 rounded">
                           <Car className="w-3 h-3 text-emerald-400 shrink-0" />
@@ -530,6 +528,15 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer Signature */}
+      <footer className="border-t border-slate-800/80 bg-[#060A14] py-4 px-4 text-center text-xs font-mono text-slate-400 z-20 flex items-center justify-center gap-1.5">
+        <span>Made with</span>
+        <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 animate-pulse inline" />
+        <span>and</span>
+        <Coffee className="w-3.5 h-3.5 text-amber-600 fill-amber-600 inline" />
+        <span>by <strong className="text-slate-200">Haresh kumar (Singapore)</strong></span>
+      </footer>
     </main>
   );
 }
