@@ -44,7 +44,6 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
 
       leafletInstance.current = map;
 
-      // Pure OpenStreetMap Standard Tiles — Zero API keys required
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
@@ -52,47 +51,45 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // Plot All Hotspots
       hotspots.forEach((spot) => {
         const color = spot.score > 90 ? '#ef4444' : spot.score > 80 ? '#f59e0b' : '#2563eb';
         const customIcon = L.divIcon({
           className: 'custom-map-pin',
           html: `
             <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-              <div style="position: absolute; width: 22px; height: 22px; background-color: ${color}; opacity: 0.4; border-radius: 50%; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-              <div style="width: 14px; height: 14px; background-color: ${color}; border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 0 10px ${color};"></div>
+              <div style="position: absolute; width: 20px; height: 20px; background-color: ${color}; opacity: 0.4; border-radius: 50%; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+              <div style="width: 12px; height: 12px; background-color: ${color}; border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 0 8px ${color};"></div>
             </div>
           `,
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
+          iconSize: [20, 20],
+          iconAnchor: [10, 10],
         });
 
         const marker = L.marker([spot.lat, spot.lng], { icon: customIcon }).addTo(map);
         marker.bindPopup(`
           <div style="font-family: sans-serif; padding: 4px; color: #0f172a;">
-            <strong style="display: block; font-size: 13px;">${spot.zoneName}</strong>
-            <span style="font-size: 11px; color: #475569;">${spot.reason}</span>
-            <div style="margin-top: 6px; font-weight: bold; color: ${color}; font-size: 12px;">Score: ${spot.score}/100</div>
+            <strong style="display: block; font-size: 12px;">${spot.zoneName}</strong>
+            <span style="font-size: 10px; color: #475569;">${spot.reason}</span>
+            <div style="margin-top: 4px; font-weight: bold; color: ${color}; font-size: 11px;">Score: ${spot.score}/100</div>
           </div>
         `);
       });
 
-      // Plot User GPS Marker
       if (userLocation) {
         const userIcon = L.divIcon({
           className: 'user-gps-pin',
           html: `
             <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-              <div style="position: absolute; width: 32px; height: 32px; background-color: #10b981; opacity: 0.4; border-radius: 50%; animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-              <div style="width: 18px; height: 18px; background-color: #10b981; border: 3px solid #ffffff; border-radius: 50%; box-shadow: 0 0 15px #10b981;"></div>
+              <div style="position: absolute; width: 28px; height: 28px; background-color: #10b981; opacity: 0.4; border-radius: 50%; animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+              <div style="width: 16px; height: 16px; background-color: #10b981; border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 0 12px #10b981;"></div>
             </div>
           `,
-          iconSize: [32, 32],
-          iconAnchor: [16, 16],
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
         });
 
         const userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon }).addTo(map);
-        userMarker.bindPopup('<strong style="color: #10b981;">📍 Your Current Location</strong>').openPopup();
+        userMarker.bindPopup('<strong style="color: #10b981; font-size: 11px;">📍 Your Location</strong>').openPopup();
       }
     };
 
@@ -107,8 +104,8 @@ export default function Map({ hotspots, userLocation }: { hotspots: Hotspot[]; u
   }, [hotspots, userLocation]);
 
   return (
-    <div className="relative w-full h-full min-h-[520px] rounded-xl overflow-hidden border border-slate-800">
-      <div ref={mapRef} className="w-full h-full min-h-[520px] z-10" />
+    <div className="relative w-full h-full rounded-xl overflow-hidden border border-slate-800">
+      <div ref={mapRef} className="w-full h-full z-10" />
     </div>
   );
 }

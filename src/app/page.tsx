@@ -6,7 +6,7 @@ import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign
 
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
-  loading: () => <div className="h-[520px] flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading OpenStreetMap...</div> 
+  loading: () => <div className="h-[350px] md:h-[520px] flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading OpenStreetMap...</div> 
 });
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
@@ -99,34 +99,33 @@ export default function DashboardPage() {
     fetchSurgeData();
   }, [getUserLocation]);
 
-  // Filter highest demand hotspots for ticker marquee
   const highDemandZones = hotspots.filter(h => h.score >= 85);
 
   return (
-    <main className="min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans">
+    <main className="min-h-screen bg-[#0B1020] text-slate-100 flex flex-col font-sans overflow-x-hidden">
       {/* Top Banner */}
-      <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-4 py-2 text-xs font-semibold flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4" />
-          <span>SURGE HUNTER LIVE — Monitoring Active Demand ({hotspots.length} Zones)</span>
+      <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-3 md:px-4 py-2 text-[11px] md:text-xs font-semibold flex items-center justify-between">
+        <div className="flex items-center gap-2 truncate pr-2">
+          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">SURGE HUNTER LIVE — Monitoring Active Demand ({hotspots.length} Zones)</span>
         </div>
-        <span className="bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">ACTIVE</span>
+        <span className="bg-amber-500/20 px-2 py-0.5 rounded text-[10px] shrink-0">ACTIVE</span>
       </div>
 
       {/* Dynamic Live Ticker Bar */}
-      <div className="bg-[#0f172a] border-b border-slate-800 py-1.5 px-4 overflow-hidden flex items-center gap-3 text-xs">
-        <div className="flex items-center gap-1.5 text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 whitespace-nowrap z-10">
-          <Zap className="w-3.5 h-3.5 fill-red-400 animate-bounce" />
-          <span>HIGH DEMAND ALERT</span>
+      <div className="bg-[#0f172a] border-b border-slate-800 py-1.5 px-3 md:px-4 overflow-hidden flex items-center gap-2 md:gap-3 text-xs">
+        <div className="flex items-center gap-1 text-red-400 font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20 text-[10px] md:text-xs whitespace-nowrap shrink-0 z-10">
+          <Zap className="w-3 h-3 fill-red-400 animate-bounce" />
+          <span>ALERT</span>
         </div>
         
         <div className="flex-1 overflow-hidden relative">
-          <div className="animate-marquee whitespace-nowrap flex gap-8 items-center text-slate-300">
+          <div className="animate-marquee whitespace-nowrap flex gap-6 md:gap-8 items-center text-slate-300 text-[11px] md:text-xs">
             {highDemandZones.concat(highDemandZones).map((spot, i) => (
-              <span key={i} className="flex items-center gap-2">
+              <span key={i} className="flex items-center gap-1.5 md:gap-2">
                 <span className="font-semibold text-white">{spot.zoneName}</span>
-                <span className="text-slate-400">({spot.reason})</span>
-                <span className="text-red-400 font-black">Score: {spot.score}/100</span>
+                <span className="text-slate-400 hidden sm:inline">({spot.reason})</span>
+                <span className="text-red-400 font-black">Score: {spot.score}</span>
                 <span className="text-slate-600">|</span>
               </span>
             ))}
@@ -134,80 +133,83 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <header className="border-b border-slate-800 bg-[#151B2E] px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Header */}
+      <header className="border-b border-slate-800 bg-[#151B2E] px-4 md:px-6 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-blue-500 animate-pulse"></span>
+          <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse"></span>
             🎯 Surge Hunter
           </h1>
-          <p className="text-xs text-slate-400">Singapore Ride-Hailing Demand & Surge Monitor</p>
+          <p className="text-[11px] md:text-xs text-slate-400">Singapore Ride-Hailing Demand & Surge Monitor</p>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={getUserLocation}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/30 transition-all"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/30 transition-all"
           >
             <Crosshair className="w-3.5 h-3.5" />
-            <span>{gpsStatus}</span>
+            <span className="truncate max-w-[180px] md:max-w-none">{gpsStatus}</span>
           </button>
 
-          <div className="flex items-center gap-2 border-l border-slate-700 pl-3">
-            <span className="text-xs text-slate-400 font-medium">Platforms:</span>
+          <div className="flex items-center gap-1.5 border-l border-slate-700 pl-2 sm:pl-3 overflow-x-auto py-0.5 max-w-full">
             {PLATFORMS.map((p) => (
               <button
                 key={p}
                 onClick={() => togglePlatform(p)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] md:text-xs font-semibold transition-all flex items-center gap-1 shrink-0 ${
                   selectedPlatforms.includes(p)
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
                     : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'
                 }`}
               >
                 <span>{p}</span>
-                <span className="text-[10px] opacity-80">({multipliers[p] || '1.0'}x)</span>
+                <span className="text-[9px] md:text-[10px] opacity-80">({multipliers[p] || '1.0'}x)</span>
               </button>
             ))}
           </div>
         </div>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
-        <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-1 min-h-[520px] flex items-center justify-center relative overflow-hidden">
+      {/* Main Grid Content */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-3 md:p-4">
+        {/* Map Container */}
+        <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-1 h-[380px] sm:h-[450px] lg:h-[550px] flex items-center justify-center relative overflow-hidden">
           <SurgeMap hotspots={hotspots} userLocation={userLocation} />
         </div>
 
-        <div className="bg-[#151B2E] border border-slate-800 rounded-xl p-4 flex flex-col gap-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h2 className="font-bold text-sm text-white flex items-center gap-2">
+        {/* Hotspots Sidebar */}
+        <div className="bg-[#151B2E] border border-slate-800 rounded-xl p-3.5 md:p-4 flex flex-col gap-3 md:gap-4">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <h2 className="font-bold text-xs md:text-sm text-white flex items-center gap-2">
               <Navigation className="w-4 h-4 text-blue-400" />
               High Demand Hotspots
             </h2>
-            <button onClick={fetchSurgeData} className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors">
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <button onClick={fetchSurgeData} className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors">
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
           {userSurgeScore !== null && (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-lg text-xs">
-              <span className="text-emerald-400 font-bold block">Your Location Surge Score:</span>
-              <div className="text-2xl font-black text-emerald-400 mt-1">{userSurgeScore} / 100</div>
+            <div className="bg-emerald-500/10 border border-emerald-500/30 p-2.5 md:p-3 rounded-lg text-xs">
+              <span className="text-emerald-400 font-bold block text-[11px]">Your Location Surge Score:</span>
+              <div className="text-xl md:text-2xl font-black text-emerald-400 mt-0.5">{userSurgeScore} / 100</div>
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[480px]">
+          <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[350px] lg:max-h-[460px]">
             {hotspots.map((spot, idx) => {
               const activeMultipliers = selectedPlatforms.map(p => parseFloat(multipliers[p] || '1.0'));
               const lowestMultiplier = activeMultipliers.length > 0 ? Math.min(...activeMultipliers) : 1.0;
               const estimatedFare = (spot.baseFare * lowestMultiplier).toFixed(1);
 
               return (
-                <div key={idx} className="bg-[#0B1020] border border-slate-800 rounded-lg p-3 hover:border-slate-600 transition-colors cursor-pointer">
+                <div key={idx} className="bg-[#0B1020] border border-slate-800 rounded-lg p-2.5 md:p-3 hover:border-slate-600 transition-colors cursor-pointer">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-sm text-slate-200">{spot.zoneName}</h3>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{spot.reason}</p>
-                      <div className="flex items-center gap-2 mt-2 text-[11px] text-slate-300">
+                      <h3 className="font-semibold text-xs md:text-sm text-slate-200">{spot.zoneName}</h3>
+                      <p className="text-[10px] md:text-[11px] text-slate-400 mt-0.5">{spot.reason}</p>
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] md:text-[11px] text-slate-300">
                         <span className="flex items-center text-emerald-400 font-semibold">
                           <DollarSign className="w-3 h-3" /> Est: S${estimatedFare}
                         </span>
@@ -217,10 +219,10 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`text-lg font-black ${spot.score > 90 ? 'text-red-400' : spot.score > 80 ? 'text-amber-400' : 'text-blue-400'}`}>
+                      <span className={`text-base md:text-lg font-black ${spot.score > 90 ? 'text-red-400' : spot.score > 80 ? 'text-amber-400' : 'text-blue-400'}`}>
                         {spot.score}
                       </span>
-                      <span className="text-[10px] block text-slate-500">/100</span>
+                      <span className="text-[9px] md:text-[10px] block text-slate-500">/100</span>
                     </div>
                   </div>
                 </div>
