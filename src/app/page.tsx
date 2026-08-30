@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap } from 'lucide-react';
+import { AlertTriangle, Navigation, RefreshCw, Crosshair, TrendingUp, DollarSign, Zap, Volume2, VolumeX } from 'lucide-react';
 
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
@@ -42,6 +42,18 @@ export default function DashboardPage() {
   const [gpsStatus, setGpsStatus] = useState<string>('Detecting Location...');
   const [loading, setLoading] = useState<boolean>(false);
   const [multipliers, setMultipliers] = useState<Record<string, string>>({ Grab: '1.2', Gojek: '1.1', TADA: '1.0', Ryde: '1.1' });
+  const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+
+  // Web Speech API Voice Notification
+  const speakNotification = (text: string) => {
+    if (!audioEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel(); // Cancel any ongoing audio
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.9;
+    window.speechSynthesis.speak(utterance);
+  };
 
   const fetchSurgeData = async () => {
     setLoading(true);
@@ -50,6 +62,7 @@ export default function DashboardPage() {
       const data = await res.json();
       if (data.platformSurges) {
         setMultipliers(data.platformSurges);
+        speakNotification('Updated surge zones.');
       }
     } catch (e) {
       console.error(e);
@@ -144,6 +157,19 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Audio Mute/Unmute Toggle */}
+          <button
+            onClick={() => setAudioEnabled(!audioEnabled)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold border transition-all ${
+              audioEnabled 
+                ? 'bg-blue-600/20 text-blue-400 border-blue-500/30 hover:bg-blue-600/30' 
+                : 'bg-slate-800 text-slate-500 border-slate-700 hover:bg-slate-700'
+            }`}
+          >
+            {audioEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span>{audioEnabled ? 'Audio On' : 'Muted'}</span>
+          </button>
+
           <button
             onClick={getUserLocation}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] md:text-xs font-semibold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/30 transition-all"
