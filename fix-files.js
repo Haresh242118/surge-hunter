@@ -1,5 +1,29 @@
-Set-Content -Path "src/app/page.tsx" -Value @'
-'use client';
+const fs = require('fs');
+const path = require('path');
+
+// Ensure target directory exists
+const appDir = path.join(__dirname, 'src', 'app');
+if (!fs.existsSync(appDir)) {
+  fs.mkdirSync(appDir, { recursive: true });
+}
+
+const layoutContent = `import './globals.css';
+
+export const metadata = {
+  title: 'Surge Hunter — SG Ride-Hailing Monitor',
+  description: 'Real-time surge monitoring for Singapore drivers.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body className="bg-[#0B1020] text-slate-100 antialiased">{children}</body>
+    </html>
+  );
+}
+`;
+
+const pageContent = `'use client';
 
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Navigation, RefreshCw } from 'lucide-react';
@@ -114,4 +138,9 @@ export default function DashboardPage() {
     </main>
   );
 }
-'@ -Encoding utf8
+`;
+
+fs.writeFileSync(path.join(appDir, 'layout.tsx'), layoutContent, 'utf8');
+fs.writeFileSync(path.join(appDir, 'page.tsx'), pageContent, 'utf8');
+
+console.log('✅ Clean src/app/layout.tsx and src/app/page.tsx generated successfully!');
