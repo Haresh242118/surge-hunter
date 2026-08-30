@@ -6,7 +6,7 @@ import { AlertTriangle, Navigation, RefreshCw } from 'lucide-react';
 
 const SurgeMap = dynamic(() => import('../components/Map'), { 
   ssr: false, 
-  loading: () => <div className="h-[450px] flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading Vector Map...</div> 
+  loading: () => <div className="h-[480px] flex items-center justify-center text-slate-500 text-sm animate-pulse">Loading Map...</div> 
 });
 
 const PLATFORMS = ['Grab', 'Gojek', 'TADA', 'Ryde'];
@@ -16,9 +16,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [hotspots] = useState([
-    { zoneName: 'Changi Airport T3', reason: 'High incoming arrivals', score: 94, x: 82, y: 48 },
-    { zoneName: 'Marina Bay Sands', reason: 'Event crowd dispersion', score: 88, x: 50, y: 62 },
-    { zoneName: 'Orchard Road', reason: 'Peak shopping hours', score: 79, x: 44, y: 52 }
+    { zoneName: 'Changi Airport T3', reason: 'High incoming arrivals', score: 94, lat: 1.3560, lng: 103.9870 },
+    { zoneName: 'Marina Bay Sands', reason: 'Event crowd dispersion', score: 88, lat: 1.2834, lng: 103.8607 },
+    { zoneName: 'Orchard Road', reason: 'Peak shopping hours', score: 79, lat: 1.3048, lng: 103.8318 }
   ]);
 
   const togglePlatform = (p: string) => {
@@ -63,7 +63,7 @@ export default function DashboardPage() {
       </header>
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4">
-        <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-2 min-h-[500px] flex items-center justify-center relative overflow-hidden">
+        <div className="lg:col-span-3 bg-[#151B2E] border border-slate-800 rounded-xl p-1 min-h-[500px] flex items-center justify-center relative overflow-hidden">
           <SurgeMap hotspots={hotspots} />
         </div>
 
